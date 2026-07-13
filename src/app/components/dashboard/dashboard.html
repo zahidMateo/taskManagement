@@ -1,0 +1,578 @@
+<div class="app-container">
+  <!-- Header / Navbar -->
+  <header class="navbar navbar-expand-lg shadow-sm py-3">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <div class="logo-icon me-2">
+          <i class="bi bi-cpu text-purple"></i>
+        </div>
+        <div>
+          <span class="fw-bold tracking-tight text-dark mb-0 h4">TaskOrchestrator</span>
+          <small class="d-block text-muted text-uppercase fs-9">Microservices Management Console</small>
+        </div>
+      </a>
+
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-2">
+          <span class="spinner-grow spinner-grow-sm text-success me-1" role="status"
+            style="width: 8px; height: 8px;"></span>
+          Gateway API: Online
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Body -->
+  <main class="container-fluid px-4 py-4">
+    <!-- Connection Error Alerts -->
+    @if (usersServiceError()) {
+    <div
+      class="alert alert-danger alert-dismissible fade show border-danger-subtle bg-danger-subtle text-danger mb-4 shadow-sm py-3 px-4 rounded-3 d-flex align-items-center justify-content-between"
+      role="alert">
+      <div>
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <strong>Error de Red (Usuarios MS):</strong> {{ usersServiceError() }}
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-danger border-0" (click)="clearUsersError()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    }
+
+    @if (workItemsServiceError()) {
+    <div
+      class="alert alert-danger alert-dismissible fade show border-danger-subtle bg-danger-subtle text-danger mb-4 shadow-sm py-3 px-4 rounded-3 d-flex align-items-center justify-content-between"
+      role="alert">
+      <div>
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <strong>Error de Red (Tareas MS):</strong> {{ workItemsServiceError() }}
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-danger border-0" (click)="clearWorkItemsError()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    }
+
+    <!-- Tab Navigation -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <ul class="nav nav-pills custom-pills p-1 rounded-3" id="pills-tab" role="tablist">
+          <li class="nav-item flex-fill" role="presentation">
+            <button class="nav-link w-100 rounded-2 py-3" [class.active]="activeTab() === 'overview'"
+              (click)="activeTab.set('overview')" type="button">
+              <i class="bi bi-grid-1x2-fill me-2"></i>Monitoreo de Microservicios
+            </button>
+          </li>
+          <li class="nav-item flex-fill" role="presentation">
+            <button class="nav-link w-100 rounded-2 py-3" [class.active]="activeTab() === 'users'"
+              (click)="activeTab.set('users')" type="button">
+              <i class="bi bi-people-fill me-2"></i>MS Gestión de Usuarios <span
+                class="badge bg-light text-dark border border-secondary-subtle ms-2">{{ usersList().length }}</span>
+            </button>
+          </li>
+          <li class="nav-item flex-fill" role="presentation">
+            <button class="nav-link w-100 rounded-2 py-3" [class.active]="activeTab() === 'items'"
+              (click)="activeTab.set('items')" type="button">
+              <i class="bi bi-list-task me-2"></i>MS Ítems de Trabajo <span
+                class="badge bg-light text-dark border border-secondary-subtle ms-2">{{ workItemsList().length }}</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Active Tab Content -->
+    <div class="tab-content">
+
+      <!-- Tab 1: Overview & Monitoring -->
+      @if (activeTab() === 'overview') {
+      <div class="tab-pane fade show active">
+
+        <!-- Top KPI Cards -->
+        <div class="row mb-4">
+          <div class="col-md-4 mb-3 mb-md-0">
+            <div class="glass-card p-3 d-flex align-items-center">
+              <div class="fs-2 text-purple me-3"><i class="bi bi-people-fill"></i></div>
+              <div>
+                <h6 class="text-muted mb-1 fs-9 text-uppercase fw-bold">Usuarios Registrados</h6>
+                <h3 class="fw-bold text-dark mb-0">{{ usersList().length }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3 mb-md-0">
+            <div class="glass-card p-3 d-flex align-items-center">
+              <div class="fs-2 text-blue me-3"><i class="bi bi-list-task"></i></div>
+              <div>
+                <h6 class="text-muted mb-1 fs-9 text-uppercase fw-bold">Tareas Totales</h6>
+                <h3 class="fw-bold text-dark mb-0">{{ workItemsList().length }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="glass-card p-3 d-flex align-items-center">
+              <div class="fs-2 text-warning me-3"><i class="bi bi-exclamation-octagon-fill"></i></div>
+              <div>
+                <h6 class="text-muted mb-1 fs-9 text-uppercase fw-bold">Tareas por Asignar</h6>
+                <h3 class="fw-bold text-dark mb-0">{{ unassignedActiveItemsCount() }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Left Side: Unassigned / Assignment Trigger -->
+          <div class="col-lg-6 col-12 mb-4">
+            <div class="card h-100 shadow-sm border-light">
+              <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title text-dark fw-bold mb-0 d-flex align-items-center">
+                  <i class="bi bi-hourglass-split text-warning me-2"></i>
+                  Tareas Pendientes de Asignación
+                </h5>
+                <button class="btn btn-purple btn-sm px-3" (click)="onLoadExampleScenario()">
+                  <i class="bi bi-arrow-clockwise me-1"></i>Cargar Escenario Inicial
+                </button>
+              </div>
+              <div class="card-body p-0">
+
+                @if (unassignedActiveItemsCount() === 0) {
+                <div class="text-center py-5 text-muted">
+                  <i class="bi bi-check-circle-fill fs-1 mb-3 d-block text-success-50"></i>
+                  <span>No hay tareas pendientes de asignación.</span>
+                </div>
+                } @else {
+                <div class="list-group list-group-flush bg-transparent">
+                  @for (item of workItemsList(); track item.id) {
+                  @if (!item.assignedUserId && item.status !== 'Completed') {
+                  <div
+                    class="list-group-item bg-transparent border-light p-3 d-flex justify-content-between align-items-center">
+                    <div>
+                      <div class="d-flex align-items-center gap-2 mb-1">
+                        <h6 class="mb-0 fw-bold text-dark">{{ item.title }}</h6>
+                        @if (item.isRelevant) {
+                        <span
+                          class="badge bg-danger-subtle text-danger border border-danger-subtle fs-9">Relevante</span>
+                        }
+                      </div>
+                      <small class="text-muted d-block">Vencimiento: {{ item.dueDate }}</small>
+                    </div>
+                    <button class="btn btn-purple btn-sm px-3" (click)="onAutoAssign(item)">
+                      <i class="bi bi-lightning-fill me-1"></i>Asignar
+                    </button>
+                  </div>
+                  }
+                  }
+                </div>
+                }
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Side: Live Logs Console / Audit Trail -->
+          <div class="col-lg-6 col-12 mb-4">
+            <div class="card h-100 d-flex flex-column shadow-sm border-light">
+              <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title text-dark fw-bold mb-0 d-flex align-items-center">
+                  <i class="bi bi-journal-text text-purple me-2"></i>
+                  Bitácora de Asignaciones (Auditoría)
+                </h5>
+                <button class="btn btn-outline-secondary btn-sm" (click)="onClearLogs()"
+                  [disabled]="logsList().length === 0">
+                  <i class="bi bi-trash-fill me-1"></i>Limpiar Registro
+                </button>
+              </div>
+              <div class="card-body bg-light bg-opacity-25 p-0 flex-grow-1 overflow-auto d-flex flex-column"
+                style="max-height: 480px; min-height: 380px;">
+
+                @if (logsList().length === 0) {
+                <div class="my-auto text-center py-5 text-muted">
+                  <i class="bi bi-terminal fs-1 mb-3 d-block text-muted-50"></i>
+                  <span>No hay registros operativos de asignaciones.</span>
+                </div>
+                } @else {
+                <div class="p-3">
+                  @for (log of logsList(); track log.id) {
+                  <div class="log-entry mb-3 pb-3 border-bottom border-light">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+                      <span class="badge" [class.bg-danger-subtle]="log.ruleApplied.includes('Regla 1')"
+                        [class.text-danger]="log.ruleApplied.includes('Regla 1')"
+                        [class.bg-warning-subtle]="log.ruleApplied.includes('Regla 2')"
+                        [class.text-warning]="log.ruleApplied.includes('Regla 2')"
+                        [class.bg-light]="log.ruleApplied.includes('Configuración')"
+                        [class.text-dark]="log.ruleApplied.includes('Configuración')"
+                        [class.bg-info-subtle]="log.ruleApplied.includes('Regla 3')"
+                        [class.text-info]="log.ruleApplied.includes('Regla 3')">
+                        {{ log.ruleApplied }}
+                      </span>
+                      <small class="text-muted">{{ log.timestamp | date:'HH:mm:ss' }}</small>
+                    </div>
+
+                    <div class="log-title text-dark fw-bold fs-8 mb-1">
+                      Ítem: <span class="text-purple">{{ log.workItemTitle }}</span>
+                    </div>
+
+                    @if (log.assignedUserId) {
+                    <div class="log-assignee fs-8 text-secondary mb-2">
+                      Asignado a: <strong class="text-dark">{{ log.assignedUserName }}</strong>
+                    </div>
+                    }
+
+                    <div class="log-details fs-8 text-secondary bg-white p-2 rounded border border-light">
+                      {{ log.details }}
+                    </div>
+                  </div>
+                  }
+                </div>
+                }
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Tab 2: User Management -->
+      @if (activeTab() === 'users') {
+      <div class="tab-pane show active fade">
+        <div class="row">
+          <!-- Add User Form -->
+          <div class="col-lg-4 col-12 mb-4">
+            <div class="card shadow-sm border-light">
+              <div class="card-header bg-transparent py-3">
+                <h5 class="card-title text-dark fw-bold mb-0 d-flex align-items-center">
+                  <i class="bi text-purple me-2" [class.bi-person-plus-fill]="!editingUser()"
+                    [class.bi-pencil-square]="editingUser()"></i>
+                  {{ editingUser() ? 'Modificar Usuario' : 'Registrar Nuevo Usuario' }}
+                </h5>
+              </div>
+              <div class="card-body">
+                <form (ngSubmit)="onSaveUser()">
+                  <div class="mb-3">
+                    <label class="form-label text-secondary fs-8 fw-bold">Nombre Completo</label>
+                    <input type="text" class="form-control" [(ngModel)]="newUser().name" name="name" required
+                      placeholder="Ej. Juan Pérez">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label text-secondary fs-8 fw-bold">Correo Electrónico</label>
+                    <input type="email" class="form-control" [(ngModel)]="newUser().email" name="email" required
+                      placeholder="correo@empresa.com">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label text-secondary fs-8 fw-bold">Rol / Cargo</label>
+                    <select class="form-select" [(ngModel)]="newUser().role" name="role">
+                      <option value="Desarrollador Senior">Desarrollador Senior</option>
+                      <option value="Desarrollador Junior">Desarrollador Junior</option>
+                      <option value="QA Engineer">QA Engineer</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-purple w-100 fw-bold py-2 mt-2 text-purple"
+                    [disabled]="!newUser().name || !newUser().email">
+                    <i class="bi me-1" [class.bi-plus-lg]="!editingUser()" [class.bi-check-lg]="editingUser()"></i>
+                    {{ editingUser() ? 'Guardar Cambios' : 'Guardar Usuario' }}
+                  </button>
+                  @if (editingUser()) {
+                  <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2 mt-2"
+                    (click)="onCancelEdit()">
+                    <i class="bi bi-x-lg me-1"></i>Cancelar Edición
+                  </button>
+                  }
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Users List -->
+          <div class="col-lg-8 col-12 mb-4">
+            <div class="card shadow-sm border-light">
+              <div class="card-header bg-transparent py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title text-dark fw-bold mb-0 d-flex align-items-center">
+                  <i class="bi bi-people-fill text-purple me-2"></i>
+                  Base de Datos de Usuarios (Microservicio)
+                </h5>
+                <span class="badge bg-light text-secondary border px-3 py-2">{{ usersList().length }} Registrados</span>
+              </div>
+              <div class="card-body p-0">
+
+                @if (usersList().length === 0) {
+                <div class="text-center py-5 text-muted">
+                  <i class="bi bi-people fs-1 mb-3 d-block text-muted-50"></i>
+                  <span>No hay usuarios registrados.</span>
+                </div>
+                } @else {
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover mb-0 align-middle">
+                    <thead>
+                      <tr class="text-secondary">
+                        <th class="ps-4">Usuario / Info</th>
+                        <th>ID del Microservicio</th>
+                        <th>Rol</th>
+                        <th>Tareas Activas</th>
+                        <th class="pe-4 text-end">Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (user of usersList(); track user.id) {
+                      <tr class="border-light">
+                        <td class="ps-4">
+                          <div class="d-flex align-items-center py-1">
+                            <div
+                              class="avatar bg-gradient-avatar me-3 d-flex align-items-center justify-content-center fw-bold">
+                              {{ user.name.charAt(0) }}
+                            </div>
+                            <div>
+                              <h6 class="mb-0 fw-bold text-dark">{{ user.name }}</h6>
+                              <small class="text-muted">{{ user.email }}</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td><code class="text-purple">{{ user.id }}</code></td>
+                        <td><span class="badge bg-light text-secondary border">{{ user.role }}</span></td>
+                        <td>
+                          <span class="badge rounded-pill fs-8"
+                            [class.bg-danger-subtle]="getUserActiveItemsCount(user.id) >= 3"
+                            [class.text-danger]="getUserActiveItemsCount(user.id) >= 3"
+                            [class.bg-warning-subtle]="getUserActiveItemsCount(user.id) === 2"
+                            [class.text-warning]="getUserActiveItemsCount(user.id) === 2"
+                            [class.bg-success-subtle]="getUserActiveItemsCount(user.id) < 2"
+                            [class.text-success]="getUserActiveItemsCount(user.id) < 2">
+                            {{ getUserActiveItemsCount(user.id) }} Tareas activas
+                          </span>
+                        </td>
+                        <td class="pe-4 text-end">
+                          <button class="btn btn-outline-primary btn-sm border-0 py-2 px-2 me-1 hover-blue"
+                            (click)="onEditUser(user)">
+                            <i class="bi bi-pencil-fill"></i>
+                          </button>
+                          <button class="btn btn-outline-danger btn-sm border-0 py-2 px-2 hover-red"
+                            (click)="onDeleteUser(user.id)">
+                            <i class="bi bi-trash3-fill"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                }
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Tab 3: Work Items Management -->
+      @if (activeTab() === 'items') {
+      <div class="tab-pane show active fade">
+        <div class="row">
+
+          <!-- Create Work Item Form -->
+          <div class="col-lg-4 col-12 mb-4">
+            <div class="card shadow-sm border-light">
+              <div class="card-header bg-transparent py-3">
+                <h5 class="card-title text-dark fw-bold mb-0 d-flex align-items-center">
+                  <i class="bi text-purple me-2" [class.bi-file-earmark-plus-fill]="!editingWorkItem()" [class.bi-pencil-square]="editingWorkItem()"></i>
+                  {{ editingWorkItem() ? 'Modificar Ítem de Trabajo' : 'Crear Ítem de Trabajo' }}
+                </h5>
+              </div>
+              <div class="card-body">
+                <form (ngSubmit)="onCreateWorkItem(false)">
+                  <div class="mb-3">
+                    <label class="form-label text-secondary fs-8 fw-bold">Título de la Tarea</label>
+                    <input type="text" class="form-control" [(ngModel)]="newItem().title" name="title" required
+                      placeholder="Ej. Crear endpoint de login">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label text-secondary fs-8 fw-bold">Descripción</label>
+                    <textarea class="form-control" rows="3" [(ngModel)]="newItem().description" name="description"
+                      placeholder="Detalle técnico..."></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label text-secondary fs-8 fw-bold">Fecha de Entrega</label>
+                    <input type="date" class="form-control" [(ngModel)]="newItem().dueDate" name="dueDate" required>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label text-secondary fs-8 fw-bold">Asignar a Usuario</label>
+                    <select class="form-select" [(ngModel)]="newItem().assignedUserId" name="assignedUserId">
+                      <option [value]="null">-- Seleccionar Usuario --</option>
+                      @for (user of usersList(); track user.id) {
+                        <option [value]="user.id">{{ user.name }} ({{ user.role }})</option>
+                      }
+                    </select>
+                  </div>
+
+                  <div class="form-check form-switch mb-4">
+                    <input class="form-check-input check-purple" type="checkbox" id="isRelevantForm"
+                      [(ngModel)]="newItem().isRelevant" name="isRelevant">
+                    <label class="form-check-label text-dark fw-bold fs-8" for="isRelevantForm">
+                      ¿Es Altamente Relevante?
+                    </label>
+                  </div>
+
+                  <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-purple fw-bold py-2 text-purple" [disabled]="!newItem().title || !newItem().dueDate">
+                      <i class="bi me-1" [class.bi-plus-lg]="!editingWorkItem()" [class.bi-check-lg]="editingWorkItem()"></i>
+                      {{ editingWorkItem() ? 'Guardar Cambios' : (newItem().assignedUserId && newItem().assignedUserId !== 'null' ? 'Crear Ítem (Asignado)' : 'Crear Ítem (Sin asignar)') }}
+                    </button>
+                    @if (!editingWorkItem()) {
+                      <button type="button" class="btn btn-outline-secondary fw-bold py-2" (click)="onCreateWorkItem(true)" [disabled]="!newItem().title || !newItem().dueDate">
+                        <i class="bi bi-lightning-fill me-1"></i> Crear y Auto-Asignar
+                      </button>
+                    } @else {
+                      <button type="button" class="btn btn-outline-secondary fw-bold py-2" (click)="onCancelEditWorkItem()">
+                        <i class="bi bi-x-lg me-1"></i> Cancelar Edición
+                      </button>
+                    }
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Work Items List -->
+          <div class="col-lg-8 col-12 mb-4">
+            <div class="card shadow-sm border-light">
+              <div
+                class="card-header bg-transparent py-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <h5 class="card-title text-dark fw-bold mb-0 d-flex align-items-center">
+                  <i class="bi bi-list-task text-purple me-2"></i>
+                  Base de Datos de Ítems de Trabajo (Microservicio)
+                </h5>
+
+                <!-- Filter Pills -->
+                <div class="btn-group btn-group-sm rounded-pill p-1 bg-light border" role="group">
+                  <button type="button" class="btn btn-light rounded-pill px-3 py-1"
+                    [class.active]="itemFilter() === 'all'" (click)="itemFilter.set('all')">Todos</button>
+                  <button type="button" class="btn btn-light rounded-pill px-3 py-1"
+                    [class.active]="itemFilter() === 'Pending'" (click)="itemFilter.set('Pending')">Pendientes</button>
+                  <button type="button" class="btn btn-light rounded-pill px-3 py-1"
+                    [class.active]="itemFilter() === 'Assigned'" (click)="itemFilter.set('Assigned')">Asignados</button>
+                  <button type="button" class="btn btn-light rounded-pill px-3 py-1"
+                    [class.active]="itemFilter() === 'Completed'"
+                    (click)="itemFilter.set('Completed')">Completados</button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+
+                @if (filteredWorkItems().length === 0) {
+                <div class="text-center py-5 text-muted">
+                  <i class="bi bi-list-task fs-1 mb-3 d-block text-muted-50"></i>
+                  <span>No se encontraron ítems de trabajo.</span>
+                </div>
+                } @else {
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover mb-0 align-middle">
+                    <thead>
+                      <tr class="text-secondary">
+                        <th class="ps-4">Título / Info de Ítem</th>
+                        <th>Relevancia</th>
+                        <th>Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Asignado A</th>
+                        <th class="pe-4 text-end">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (item of filteredWorkItems(); track item.id) {
+                      <tr class="border-light">
+                        <td class="ps-4 py-3">
+                          <h6 class="mb-1 text-dark fw-bold">{{ item.title }}</h6>
+                          <p class="mb-0 text-secondary fs-8 text-truncate-2" style="max-width: 250px;">{{
+                            item.description || 'Sin descripción.' }}</p>
+                        </td>
+                        <td>
+                          @if (item.isRelevant) {
+                          <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">
+                            Relevante
+                          </span>
+                          } @else {
+                          <span
+                            class="badge bg-secondary-subtle text-secondary-light border border-secondary px-2 py-1">
+                            Común
+                          </span>
+                          }
+                        </td>
+                        <td>
+                          <div class="d-flex flex-column">
+                            <span class="fw-semibold text-dark fs-8">{{ item.dueDate }}</span>
+                            @if (item.status !== 'Completed') {
+                            @if (isItemUrgent(item)) {
+                            <span class="text-danger fw-bold fs-9 animate-pulse">
+                              ¡Urgente ({{ getDaysRemaining(item) }} d!)
+                            </span>
+                            } @else {
+                            <span class="text-secondary fs-9">
+                              En {{ getDaysRemaining(item) }} días
+                            </span>
+                            }
+                            }
+                          </div>
+                        </td>
+                        <td>
+                          @if (item.status === 'Pending') {
+                          <span class="badge bg-danger text-white px-2 py-1">Pendiente</span>
+                          } @else if (item.status === 'Assigned') {
+                          <span class="badge bg-warning text-dark px-2 py-1">Asignado</span>
+                          } @else {
+                          <span class="badge bg-success text-white px-2 py-1">Completado</span>
+                          }
+                        </td>
+                        <td>
+                          @if (item.assignedUserId) {
+                          <div class="d-flex align-items-center">
+                            <div
+                              class="avatar-sm bg-purple text-white me-2 d-flex align-items-center justify-content-center fw-bold fs-9">
+                              {{ getUserName(item.assignedUserId).charAt(0) }}
+                            </div>
+                            <span class="text-secondary fs-8">{{ getUserName(item.assignedUserId) }}</span>
+                          </div>
+                          } @else {
+                          <span class="text-muted-50 fs-8 italic">Sin asignar</span>
+                          }
+                        </td>
+                        <td class="pe-4 text-end">
+                          <div class="d-flex justify-content-end gap-1">
+                            @if (item.status === 'Pending') {
+                            <button class="btn btn-purple btn-sm py-1 px-2 text-purple" (click)="onAutoAssign(item)">
+                              <i class="bi bi-lightning-fill me-1"></i>Asignar
+                            </button>
+                            }
+
+                            @if (item.status === 'Assigned') {
+                            <button class="btn btn-outline-success btn-sm py-1 px-2" (click)="onCompleteWorkItem(item)">
+                              <i class="bi bi-check-lg me-1"></i>Completar
+                            </button>
+                            }
+
+                            <button class="btn btn-outline-primary btn-sm border-0 py-1 px-2 hover-blue"
+                              (click)="onEditWorkItem(item)">
+                              <i class="bi bi-pencil-fill"></i>
+                            </button>
+
+                            <button class="btn btn-outline-danger btn-sm border-0 py-1 px-2 hover-red"
+                              (click)="onDeleteWorkItem(item.id)">
+                              <i class="bi bi-trash3-fill"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                }
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      }
+
+    </div>
+  </main>
+</div>

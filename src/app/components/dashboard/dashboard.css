@@ -1,0 +1,300 @@
+/* Pastel Light Theme CSS for TaskOrchestrator */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f7f9fc;
+  color: #495057;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header & Navbar Light Mode */
+.navbar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e9ecef !important;
+}
+
+.logo-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #6b38c2;
+  background: #f1f0fe;
+  border: 1px solid #e1dbfd;
+}
+
+/* Badges & Accents - Pastels */
+.bg-gradient-purple {
+  background: linear-gradient(135deg, #e8dbfc 0%, #f1f0fe 100%);
+}
+
+.bg-purple-gradient {
+  background: linear-gradient(135deg, #f3e8ff 0%, #fae8ff 100%);
+  color: #6b21a8 !important;
+  border: 1px solid #f3d8f9;
+}
+
+.bg-gradient-avatar {
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  color: #0369a1 !important;
+}
+
+.text-purple {
+  color: #7c3aed !important;
+}
+
+.text-blue {
+  color: #0284c7 !important;
+}
+
+/* Buttons - Pastels */
+.btn-purple {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+  border: 1px solid #e9d5ff;
+  font-weight: 600;
+  transition: all 0.25s ease-in-out;
+}
+
+.btn-purple:hover {
+  background-color: #e9d5ff;
+  color: #581c87;
+  border-color: #d8b4fe;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(107, 33, 168, 0.1);
+}
+
+.btn-purple:disabled {
+  background-color: #e9ecef;
+  border-color: #dee2e6;
+  color: #adb5bd !important;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Light Pastel Cards */
+.glass-card {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s ease;
+}
+
+.glass-card:hover {
+  border-color: #dee2e6;
+  box-shadow: 0 8px 24px rgba(107, 33, 168, 0.05);
+}
+
+.border-purple {
+  border: 1px solid #e9d5ff;
+}
+
+.border-purple:hover {
+  border-color: #d8b4fe;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.15);
+}
+
+.border-blue {
+  border: 1px solid #bae6fd;
+}
+
+.border-blue:hover {
+  border-color: #7dd3fc;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.15);
+}
+
+.bg-black-25 {
+  background-color: #f8f9fa !important;
+}
+
+.bg-black-50 {
+  background-color: #f1f3f5 !important;
+}
+
+/* MS Status Indicator */
+.ms-status-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* Tab Navigation Pills Light Mode */
+.custom-pills {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef !important;
+}
+
+.custom-pills .nav-link {
+  color: #6c757d;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.custom-pills .nav-link:hover {
+  color: #495057;
+  background-color: #f8f9fa;
+}
+
+.custom-pills .nav-link.active {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e0f2fe 100%);
+  color: #4b2c85;
+  border: 1px solid #e9d5ff;
+  box-shadow: 0 3px 8px rgba(107, 33, 168, 0.08);
+}
+
+/* User Avatars */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.avatar-sm {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+/* Inputs Light Mode */
+.form-control, .form-select {
+  background-color: #ffffff;
+  border: 1px solid #ced4da;
+  color: #495057;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: #ffffff;
+  border-color: #c084fc;
+  box-shadow: 0 0 0 0.25rem rgba(192, 132, 252, 0.15);
+  color: #495057;
+}
+
+.check-purple:checked {
+  background-color: #a855f7;
+  border-color: #a855f7;
+}
+
+/* Table Light Mode override */
+.table {
+  color: #495057;
+  --bs-table-bg: transparent;
+  --bs-table-hover-bg: rgba(243, 232, 255, 0.25);
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th {
+  border-bottom: 2px solid #dee2e6;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+.hover-red:hover {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+/* Card overrides for Light Mode */
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  border-radius: 14px;
+}
+
+.card-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* Timeline Audit Console */
+.log-entry {
+  animation: slideIn 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+}
+
+/* Alert adjustments for Pastels */
+.alert-danger {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+/* Animations */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.03); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-pulse {
+  animation: pulse 2.5s infinite ease-in-out;
+}
+
+@keyframes flow {
+  0% { transform: translateX(0); opacity: 0.5; }
+  50% { transform: translateX(4px); opacity: 1; }
+  100% { transform: translateX(0); opacity: 0.5; }
+}
+
+.animate-flow {
+  animation: flow 1.5s infinite ease-in-out;
+  color: #a78bfa;
+}
+
+@keyframes flow-reverse {
+  0% { transform: translateX(0); opacity: 0.5; }
+  50% { transform: translateX(-4px); opacity: 1; }
+  100% { transform: translateX(0); opacity: 0.5; }
+}
+
+.animate-flow-reverse {
+  animation: flow-reverse 1.5s infinite ease-in-out;
+  color: #a78bfa;
+}
+
+.fs-7 { font-size: 0.95rem; }
+.fs-8 { font-size: 0.85rem; }
+.fs-9 { font-size: 0.75rem; }
+.italic { font-style: italic; }
